@@ -4,7 +4,7 @@ pipeline {
     environment {
         NEXUS_URL = 'http://10.0.2.16:8081/repository/go-binaries/'
         NEXUS_USER = 'admin'
-        NEXUS_PASSWORD = 'admin123'
+        NEXUS_PASSWORD = '88520'
     }
 
     stages {
