@@ -1,37 +1,36 @@
 pipeline {
     agent any
 
-    environment {
-        NEXUS_URL = 'http://10.0.2.16:8081/repository/go-binaries/'
-        NEXUS_USER = 'admin'
-        NEXUS_PASSWORD = '88520'
+    tools {
+        golang 'go'  // Убедитесь, что Go установлен и настроен в Jenkins
     }
 
     stages {
-        stage('Clone Repository') {
+        stage('Checkout') {
             steps {
-                git url: 'https://github.com/IlyaBridge/8-02-hw.git', credentialsId: 'your-github-credentials-id'
+                git 'https://github.com/IlyaBridge/8-02-hw.git'
             }
         }
-
-        stage('Build Go Application') {
+        stage('Build') {
             steps {
-                sh 'go build -o myapp .'
+                sh 'go build -o myapp'
             }
         }
-
         stage('Upload to Nexus') {
             steps {
-                sh """
-                curl -u ${NEXUS_USER}:${NEXUS_PASSWORD} -X PUT -T myapp ${NEXUS_URL}myapp
-                """
+                script {
+                    def server = Artifactory.server 'nexus'
+                    def uploadSpec = """{
+                        "files": [
+                            {
+                                "pattern": "myapp",
+                                "target": "go-binaries/"
+                            }
+                        ]
+                    }"""
+                    server.upload(uploadSpec)
+                }
             }
-        }
-    }
-
-    post {
-        always {
-            archiveArtifacts artifacts: 'myapp', allowEmptyArchive: true
         }
     }
 }
