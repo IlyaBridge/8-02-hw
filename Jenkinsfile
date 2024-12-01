@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        NEXUS_URL = 'http://<your-nexus-server-ip>:8081/repository/go-binaries/'
+        NEXUS_URL = 'http://10.0.2.16:8081/repository/go-binaries/'
         NEXUS_USER = 'admin'
         NEXUS_PASSWORD = 'admin123'
     }
