@@ -1,12 +1,37 @@
 pipeline {
     agent any
 
+    environment {
+        NEXUS_URL = 'http://<your-nexus-server-ip>:8081/repository/go-binaries/'
+        NEXUS_USER = 'admin'
+        NEXUS_PASSWORD = 'admin123'
+    }
+
     stages {
-        stage('Build') {
+        stage('Clone Repository') {
             steps {
-                sh 'go test'
-                sh 'docker build -t my-image .'
+                git url: 'https://github.com/IlyaBridge/8-02-hw.git', credentialsId: 'your-github-credentials-id'
             }
+        }
+
+        stage('Build Go Application') {
+            steps {
+                sh 'go build -o myapp .'
+            }
+        }
+
+        stage('Upload to Nexus') {
+            steps {
+                sh """
+                curl -u ${NEXUS_USER}:${NEXUS_PASSWORD} -X PUT -T myapp ${NEXUS_URL}myapp
+                """
+            }
+        }
+    }
+
+    post {
+        always {
+            archiveArtifacts artifacts: 'myapp', allowEmptyArchive: true
         }
     }
 }
